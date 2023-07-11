@@ -362,7 +362,6 @@ public class CoreAdminHandler extends RequestHandlerBase implements PermissionNa
     apis.addAll(AnnotatedApi.getApis(new CreateCoreAPI(this)));
     apis.addAll(AnnotatedApi.getApis(new RejoinLeaderElectionAPI(this)));
     apis.addAll(AnnotatedApi.getApis(new OverseerOperationAPI(this)));
-    apis.addAll(AnnotatedApi.getApis(new ReloadCoreAPI(this)));
     apis.addAll(AnnotatedApi.getApis(new SwapCoresAPI(this)));
     apis.addAll(AnnotatedApi.getApis(new RenameCoreAPI(this)));
     apis.addAll(AnnotatedApi.getApis(new UnloadCoreAPI(this)));
@@ -381,7 +380,7 @@ public class CoreAdminHandler extends RequestHandlerBase implements PermissionNa
 
   @Override
   public Collection<Class<? extends JerseyResource>> getJerseyResources() {
-    return List.of(CoreSnapshotAPI.class, InstallCoreDataAPI.class);
+    return List.of(CoreSnapshotAPI.class, InstallCoreDataAPI.class, ReloadCoreAPI.class);
   }
 
   static {

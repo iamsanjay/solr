@@ -235,6 +235,9 @@ Improvements
 * SOLR-16470: `/coreName/replication?command=filelist` now has a v2 equivalent, available at
   `GET /api/cores/coreName/replication/files?generation=123` (Matthew Biscocho via Jason Gerlowski)
 
+* SOLR-16397: Reload core v2 endpoints have been updated to be more REST-ful.
+  RELOAD is not available at `POST /api/cores/coreName/reload` (Sanjay Dutt via Jason Gerlowski)
+
 Optimizations
 ---------------------
 

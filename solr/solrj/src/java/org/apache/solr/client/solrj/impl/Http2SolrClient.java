@@ -833,10 +833,6 @@ public class Http2SolrClient extends HttpSolrClientBase {
         .collect(Collectors.joining(", "));
   }
 
-  protected RequestWriter getRequestWriter() {
-    return requestWriter;
-  }
-
   /**
    * An Http2SolrClient that doesn't close or cleanup any resources
    *

@@ -91,6 +91,8 @@ Deprecation Removals
 * SOLR-17256: Previously deprecated `SolrRequest` methods `setBasePath` and `getBasePath` have been removed.  SolrJ users
   wishing to temporarily override an HTTP client's base URL may use `Http2SolrClient.requestWithBaseUrl` instead. (Jason Gerlowski)
 
+* SOLR-17564: Remove code in Assign used for backwards compatibility with Collections created prior to 7.0 (Paul McArthur)
+
 Dependency Upgrades
 ---------------------
 (No changes)
@@ -125,6 +127,8 @@ Other Changes
 * SOLR-17285: SolrJ RemoteSolrException moved to SolrClient. (@samuelrivascoding)
 
 * SOLR-17321: Minimum Java version for Apache Solr is now 21, and for SolrJ, it is 17. (Sanjay Dutt, David Smiley)
+
+* SOLR-16903: Update CLI tools to use java.nio.file.Path instead of java.io.File (Andrey Bozhko)
 
 ==================  9.8.0 ==================
 New Features
@@ -171,6 +175,9 @@ Improvements
   at `PUT /api/cluster/properties/somePropName`.  Deletion is now available at `DELETE /api/cluster/properties/somePropName`.
   New APIs for listing-all and fetching-single cluster props are also now available at `GET /api/cluster/properties` and
   `GET /api/cluster/properties/somePropName`, respectively. (Carlos Ugarte via Jason Gerlowski)
+
+* SOLR-16470: Replication "fetch file" API now has a v2 equivalent, available at `GET /api/cores/coreName/replication/files/fileName`
+  (Matthew Biscocho via Jason Gerlowski)
 
 
 Optimizations
@@ -219,6 +226,8 @@ Bug Fixes
 
 * SOLR-16976: Remove log4j-jul jar and use slf4j bridge for JUL to prevent exception from being logged when remote JMX
   is enabled (Shawn Heisey, Stephen Zhou, Eric Pugh, Christine Poerschke, David Smiley)
+
+* SOLR-17575: Fixed broken backwards compatibility with the legacy "langid.whitelist" config in Solr Langid. (Jan Høydahl, Alexander Zagniotov)
 
 Dependency Upgrades
 ---------------------

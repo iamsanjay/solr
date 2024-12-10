@@ -100,6 +100,8 @@ Deprecation Removals
   looking for similar functionality can use Solr's package manager.  Users that don't need to vary JAR access on a per-core basis
   have many options, including the `<sharedLib/>` tag and directly modifying Solr's classpath prior to JVM startup. (Jason Gerlowski)
 
+* SOLR-17540: Removed the Hadoop Auth module, and thus Kerberos authentication and other exotic options. (Eric Pugh)
+
 Dependency Upgrades
 ---------------------
 (No changes)
@@ -138,6 +140,31 @@ Other Changes
 * SOLR-16903: Update CLI tools to use java.nio.file.Path instead of java.io.File (Andrey Bozhko)
 
 * SOLR-17568: SolrCloud no longer reroutes/proxies a core request to another node if not found locally. (David Smiley)
+
+==================  9.9.0 ==================
+New Features
+---------------------
+(No changes)
+
+Improvements
+---------------------
+(No changes)
+
+Optimizations
+---------------------
+(No changes)
+
+Bug Fixes
+---------------------
+(No changes)
+
+Dependency Upgrades
+---------------------
+(No changes)
+
+Other Changes
+---------------------
+(No changes)
 
 ==================  9.8.0 ==================
 New Features
@@ -199,7 +226,9 @@ Optimizations
   that which consumes almost no memory, saving 1MB of memory per SolrCore.  (David Smiley)
 
 * SOLR-17381: Make CLUSTERSTATUS request configurable to improve performance by allowing retrieval of specific information,
-  reducing unnecessary data fetching. (Aparna Suresh, David Smiley)
+  reducing unnecessary data fetching.  Enhanced CloudSolrClient's HTTP ClusterStateProvider to use it, and to scale to
+  more collections better as well.
+   (Aparna Suresh, David Smiley)
 
 * SOLR-17396: Reduce thread contention in ZkStateReader.getCollectionProperties(). (Aparna Suresh, David Smiley, Paul McArthur)
 

@@ -18,11 +18,14 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          develocity-url: https://develocity.apache.org
+
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@v4
         with:
           build-scan-publish: true
-          develocity-url: https://develocity.apache.org
           develocity-access-key: ${{ secrets.SOLR_DEVELOCITY_ACCESS_KEY }}
 
         env:

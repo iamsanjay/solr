@@ -35,13 +35,10 @@ public class ScalarQuantizedDenseVectorField extends DenseVectorField {
   public static final String COMPRESS_PARAM =
       "compress"; // can only be enabled when bits = 4 per Lucene codec spec
 
-  static final int DEFAULT_BITS = 7; // use signed byte as default when unspecified
+  static final int DEFAULT_BITS = 7;
   static final Float DEFAULT_CONFIDENCE_INTERVAL = null; // use dimension scaled confidence interval
 
-  /**
-   * Number of bits to use for storage Must be 4 (half-byte) or 7 (signed-byte) per Lucene codec
-   * spec
-   */
+  /** Number of bits to use for storage. Must match a Lucene scalar encoding bit width. */
   private int bits;
 
   /**
@@ -126,14 +123,23 @@ public class ScalarQuantizedDenseVectorField extends DenseVectorField {
 
   @Override
   public KnnVectorsFormat buildKnnVectorsFormat() {
-    ScalarEncoding encoding = ScalarEncoding.fromNumBits(getBits());
     return new Lucene104HnswScalarQuantizedVectorsFormat(
-        encoding, getHnswM(), getHnswEfConstruction());
+        getScalarEncoding(), getHnswM(), getHnswEfConstruction());
   }
 
   @Override
   public void checkSchemaField(final SchemaField field) throws SolrException {
     super.checkSchemaField(field);
+
+    if (getVectorEncoding() != VectorEncoding.FLOAT32) {
+      throw new SolrException(
+          SolrException.ErrorCode.SERVER_ERROR,
+          getClass().getSimpleName()
+              + " fields only support "
+              + VectorEncoding.FLOAT32
+              + " vectorEncoding: "
+              + field.getName());
+    }
 
     try {
       // format does not expose any validation, however by constructing
@@ -149,6 +155,11 @@ public class ScalarQuantizedDenseVectorField extends DenseVectorField {
 
   public int getBits() {
     return bits;
+  }
+
+  @VisibleForTesting
+  ScalarEncoding getScalarEncoding() {
+    return ScalarEncoding.fromNumBits(getBits());
   }
 
   /**

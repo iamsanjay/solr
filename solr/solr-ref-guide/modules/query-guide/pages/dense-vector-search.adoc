@@ -299,7 +299,9 @@ with 8 bits we can store up to 256 discrete values, so a float dimension with va
 [0.0, 0.0039) => 0, [0.0039, 0.0078) => 1 ... etc
 
 As a specific type of DenseVectorField, this field type supports all the same configurable properties outlined above as well
-as some additional ones.
+as some additional ones. Scalar quantization is applied while indexing `FLOAT32` vectors; do not set
+`vectorEncoding="BYTE"` on this field type, because byte vectors are already pre-quantized before
+Lucene's scalar quantizer can run.
 
 Here is how a ScalarQuantizedDenseVectorField can be defined in the schema:
 
@@ -314,9 +316,40 @@ Here is how a ScalarQuantizedDenseVectorField can be defined in the schema:
 s|Optional |Default: `7`
 |===
 +
-The number of bits to use for each quantized dimension value
+The number of bits Lucene uses to represent each vector dimension in the in-memory HNSW graph.
+Smaller values use less vector memory, but search results may lose recall because each dimension is
+represented with less precision.
 +
-Accepted values: 4 (half byte) or 7 (unsigned byte).
+[cols="1,4",options="header"]
+|===
+|Value |Use when
+
+|`1`
+|You need the smallest in-memory vector representation and can tolerate the largest recall loss.
+
+|`2`
+|You want very aggressive memory reduction with more precision than `1`.
+
+|`4`
+|You want a middle ground between memory reduction and recall.
+
+|`7`
+|You need Solr's previous scalar-quantized default behavior. This remains the default when `bits` is
+omitted so existing schemas keep their previous behavior.
+
+|`8`
+|You want the most accurate scalar-quantized option for a new schema. It uses the same number of bytes
+per dimension as `7`, but avoids the legacy 7-bit signed representation.
+|===
++
+For new schemas, start with `bits="8"` if accuracy matters most, then benchmark lower values such as
+`4`, `2`, or `1` if vector memory is the larger concern. Keep `bits="7"` only when you want the
+legacy default behavior.
++
+Scalar quantization reduces the memory used by the vector graph, not necessarily the total on-disk
+index size. Lucene keeps the original floating-point vectors as well as the quantized values so it can
+refine comparisons during search, which can make the on-disk vector data slightly larger than an
+unquantized vector field.
 
 `NOTE:` Existing Solr 10 schemas may still contain legacy scalar-quantization parameters such as
 `confidenceInterval`, `dynamicConfidenceInterval`, or `compress`. They are now deprecated and ignored.

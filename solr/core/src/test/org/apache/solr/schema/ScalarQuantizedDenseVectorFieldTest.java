@@ -18,6 +18,7 @@ package org.apache.solr.schema;
 
 import static org.hamcrest.core.Is.is;
 
+import org.apache.lucene.codecs.lucene104.Lucene104ScalarQuantizedVectorsFormat.ScalarEncoding;
 import org.apache.lucene.index.VectorSimilarityFunction;
 import org.apache.solr.core.AbstractBadConfigTestBase;
 import org.junit.Before;
@@ -33,6 +34,14 @@ public class ScalarQuantizedDenseVectorFieldTest extends AbstractBadConfigTestBa
         "solrconfig-basic.xml",
         "bad-schema-densevector-quantized-bits.xml",
         "ScalarQuantizedDenseVectorField No encoding for 6 bits: v_scalar_bits");
+  }
+
+  @Test
+  public void fieldTypeDefinition_byteVectorEncoding_shouldThrowException() throws Exception {
+    assertConfigs(
+        "solrconfig-basic.xml",
+        "bad-schema-densevector-quantized-byte-encoding.xml",
+        "ScalarQuantizedDenseVectorField fields only support FLOAT32 vectorEncoding: v_scalar_byte_encoding");
   }
 
   @Test
@@ -52,6 +61,9 @@ public class ScalarQuantizedDenseVectorFieldTest extends AbstractBadConfigTestBa
       assertThat(defaultVectorType.getKnnAlgorithm(), is("hnsw"));
       assertThat(defaultVectorType.getBits(), is(ScalarQuantizedDenseVectorField.DEFAULT_BITS));
       assertThat(
+          defaultVectorType.getScalarEncoding(),
+          is(ScalarEncoding.fromNumBits(ScalarQuantizedDenseVectorField.DEFAULT_BITS)));
+      assertThat(
           defaultVectorType.getConfidenceInterval(),
           is(ScalarQuantizedDenseVectorField.DEFAULT_CONFIDENCE_INTERVAL));
       assertThat(defaultVectorType.useCompression(), is(false));
@@ -61,21 +73,30 @@ public class ScalarQuantizedDenseVectorFieldTest extends AbstractBadConfigTestBa
   }
 
   @Test
-  public void fieldDefinition_halfByteSize_shouldLoadSchemaField() throws Exception {
+  public void fieldDefinition_supportedBitSizes_shouldLoadSchemaField() throws Exception {
     try {
       initCore("solrconfig_codec.xml", "schema-densevector-quantized.xml");
 
       IndexSchema schema = h.getCore().getLatestSchema();
 
-      SchemaField vectorField = schema.getField("v_scalar_half_byte");
-      assertNotNull(vectorField);
-
-      ScalarQuantizedDenseVectorField vectorType =
-          (ScalarQuantizedDenseVectorField) vectorField.getType();
-      assertThat(vectorType.getBits(), is(4));
+      assertScalarEncodingForField(schema, "v_scalar_single_bit", 1);
+      assertScalarEncodingForField(schema, "v_scalar_dibit", 2);
+      assertScalarEncodingForField(schema, "v_scalar_half_byte", 4);
+      assertScalarEncodingForField(schema, "v_scalar_signed_byte", 7);
+      assertScalarEncodingForField(schema, "v_scalar_unsigned_byte", 8);
     } finally {
       deleteCore();
     }
+  }
+
+  private void assertScalarEncodingForField(IndexSchema schema, String fieldName, int bits) {
+    SchemaField vectorField = schema.getField(fieldName);
+    assertNotNull(vectorField);
+
+    ScalarQuantizedDenseVectorField vectorType =
+        (ScalarQuantizedDenseVectorField) vectorField.getType();
+    assertThat(vectorType.getBits(), is(bits));
+    assertThat(vectorType.getScalarEncoding(), is(ScalarEncoding.fromNumBits(bits)));
   }
 
   @Test
